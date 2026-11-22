@@ -14,7 +14,7 @@ npm run dev
 
 The pages live in `src/app`. The procedural Three.js mascot and client interactions live in `src/components`. Business rules and typed settings live in `src/lib`. Branded artwork and locally hosted fonts are in `public`.
 
-The home illustration can switch to a live procedural scene. The playable room defaults to live 3D on larger screens and to illustration on mobile or when reduced motion is preferred. The scene control lets visitors choose. Cat-room achievements use local storage. Meme compositing and PNG export run in the browser.
+The home and playable room open with illustrated scenes. Visitors can switch either scene to the live procedural cat. Room actions update the artwork or animated pose, with celebratory effects disabled when reduced motion is preferred. Cat-room achievements use local storage. Meme compositing and PNG export run in the browser.
 
 ## Configuration
 
