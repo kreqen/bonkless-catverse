@@ -3,7 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { ContactShadows, RoundedBox, Sparkles } from '@react-three/drei'
 import { Component, useRef } from 'react'
 import type { Group } from 'three'
-import { CatmullRomCurve3, Vector3 } from 'three'
+import { CatmullRomCurve3, Shape, Vector3 } from 'three'
 
 type Pose = 'idle' | 'feed' | 'pet' | 'nap'
 type Triple = [number, number, number]
@@ -11,6 +11,21 @@ const orange = '#ff861f'
 const cream = '#ffca87'
 const stripe = '#c84c15'
 const ink = '#231125'
+const ear = new Shape()
+ear.moveTo(-0.27, -0.12)
+ear.quadraticCurveTo(-0.27, 0.17, -0.13, 0.47)
+ear.quadraticCurveTo(-0.07, 0.58, 0.01, 0.48)
+ear.quadraticCurveTo(0.21, 0.27, 0.28, -0.11)
+ear.quadraticCurveTo(0.04, -0.23, -0.27, -0.12)
+const earDepth = {
+  depth: 0.12,
+  bevelEnabled: true,
+  bevelThickness: 0.07,
+  bevelSize: 0.06,
+  bevelSegments: 4,
+  curveSegments: 18,
+}
+
 const tailShape = new CatmullRomCurve3(
   [
     [0, 0, 0],
@@ -35,7 +50,10 @@ function Oval({
   return (
     <mesh position={at} scale={size} rotation-z={tilt} castShadow>
       <sphereGeometry args={[1, 32, 24]} />
-      <meshStandardMaterial color={color} roughness={0.26} />
+      <meshStandardMaterial
+        color={color}
+        roughness={color === ink ? 0.19 : 0.45}
+      />
     </mesh>
   )
 }
@@ -68,8 +86,8 @@ function Mascot({ pose, still }: { pose: Pose; still: boolean }) {
     tail.current.rotation.z = Math.sin(t * (pose === 'pet' ? 5 : 2)) * 0.16
   })
   return (
-    <group ref={body}>
-      <group ref={tail} position={[0.55, 0.52, -0.46]}>
+    <group ref={body} rotation-y={-0.19}>
+      <group ref={tail} position={[0.55, 0.44, -0.46]}>
         <mesh>
           <tubeGeometry args={[tailShape, 40, 0.17, 16, false]} />
           <meshStandardMaterial color={orange} roughness={0.28} />
@@ -80,8 +98,8 @@ function Mascot({ pose, still }: { pose: Pose; still: boolean }) {
           color={stripe}
         />
       </group>
-      <Oval at={[0, 0.82, 0]} size={[0.82, 0.86, 0.6]} color={orange} />
-      <Oval at={[0, 0.66, 0.47]} size={[0.52, 0.55, 0.2]} color={cream} />
+      <Oval at={[0, 0.73, 0]} size={[0.85, 0.74, 0.68]} color={orange} />
+      <Oval at={[0, 0.6, 0.55]} size={[0.43, 0.5, 0.17]} color={cream} />
       {[-1, 1].map((side) => (
         <group key={side}>
           <Oval
@@ -89,6 +107,14 @@ function Mascot({ pose, still }: { pose: Pose; still: boolean }) {
             size={[0.38, 0.23, 0.4]}
             color={orange}
           />
+          {[-1, 0, 1].map((toe) => (
+            <Oval
+              key={toe}
+              at={[side * 0.43 + toe * 0.095, 0.19, 0.84]}
+              size={[0.078, 0.105, 0.091]}
+              color="#ffa455"
+            />
+          ))}
           <Oval
             at={[side * 0.6, 0.57, 0.41]}
             size={[0.19, 0.039, 0.035]}
@@ -103,41 +129,45 @@ function Mascot({ pose, still }: { pose: Pose; still: boolean }) {
           />
         </group>
       ))}
-      <group ref={head} position={[0, 1.85, 0.19]}>
+      <group ref={head} position={[0, 1.65, 0.2]}>
         {[-1, 1].map((side) => (
           <group
             key={side}
             position={[side * 0.61, 0.52, -0.03]}
             rotation-z={-side * 0.27}
           >
-            <mesh position-y={0.18}>
-              <coneGeometry args={[0.32, 0.73, 40]} />
-              <meshStandardMaterial color={orange} roughness={0.3} />
+            <mesh position-z={-0.07}>
+              <extrudeGeometry args={[ear, earDepth]} />
+              <meshStandardMaterial color={orange} roughness={0.46} />
             </mesh>
-            <Oval
-              at={[0, 0.13, 0.2]}
-              size={[0.16, 0.25, 0.06]}
-              color="#f68b91"
-            />
+            <mesh position={[0, 0.05, 0.075]} scale={[0.59, 0.69, 0.28]}>
+              <extrudeGeometry args={[ear, earDepth]} />
+              <meshStandardMaterial color="#d77d85" roughness={0.54} />
+            </mesh>
           </group>
         ))}
-        <Oval at={[0, 0, 0]} size={[0.98, 0.71, 0.64]} color={orange} />
+        <Oval at={[0, 0, 0]} size={[1.02, 0.7, 0.68]} color={orange} />
         {[-1, 0, 1].map((i) => (
           <Oval
             key={i}
             at={[i * 0.22, 0.46 - Math.abs(i) * 0.035, 0.49]}
-            size={[0.048, 0.14, 0.035]}
+            size={[0.043, 0.131, 0.018]}
             color={stripe}
             tilt={i * -0.35}
           />
         ))}
-        <group ref={eyes} position={[0, 0.05, 0.56]}>
+        <group ref={eyes} position={[0, 0.075, 0.61]}>
           {[-1, 1].map((side) => (
             <group key={side} position-x={side * 0.37}>
-              <Oval at={[0, 0, 0]} size={[0.217, 0.259, 0.11]} color={ink} />
+              <Oval
+                at={[0, 0, 0]}
+                size={[0.228, 0.224, 0.092]}
+                color={ink}
+                tilt={side * 0.12}
+              />
               <Oval
                 at={[-0.057, 0.08, 0.098]}
-                size={[0.064, 0.071, 0.026]}
+                size={[0.055, 0.06, 0.018]}
                 color="#fff8ea"
               />
               <Oval
@@ -159,7 +189,7 @@ function Mascot({ pose, still }: { pose: Pose; still: boolean }) {
               <Oval
                 key={i}
                 at={[side * 0.62, -0.17 - i * 0.063, 0.57]}
-                size={[0.275, 0.012, 0.014]}
+                size={[0.235, 0.008, 0.01]}
                 color="#ffe0aa"
                 tilt={side * (0.19 - i * 0.16)}
               />
@@ -238,10 +268,21 @@ function Props({ room, still }: { room: boolean; still: boolean }) {
         />
       </group>
       {room && (
-        <mesh rotation-x={-Math.PI / 2} position-y={0.02}>
-          <circleGeometry args={[2.25, 64]} />
-          <meshStandardMaterial color="#7136a6" />
-        </mesh>
+        <group>
+          <Oval at={[0, -0.14, 0]} size={[2.05, 0.22, 1.26]} color="#442363" />
+          <mesh
+            rotation-x={-Math.PI / 2}
+            position-y={0.034}
+            scale={[1, 0.62, 1]}
+          >
+            <ringGeometry args={[1.84, 1.87, 80]} />
+            <meshStandardMaterial
+              color="#b582ed"
+              emissive="#7d38bd"
+              emissiveIntensity={0.45}
+            />
+          </mesh>
+        </group>
       )}
       <Sparkles
         count={24}
@@ -296,17 +337,17 @@ export default function CatScene({
           camera={{ position: [0, 2.15, 5.5], fov: 36 }}
           dpr={[1, 1.5]}
           gl={{ alpha: true, antialias: true }}
-          onCreated={({ camera }) => camera.lookAt(0, 1.36, 0)}
+          onCreated={({ camera }) => camera.lookAt(0, 1.23, 0)}
         >
-          <ambientLight intensity={1.35} />
+          <hemisphereLight args={['#ece0ff', '#48265e', 1.9]} />
           <directionalLight
             position={[3, 5, 4]}
-            intensity={3.2}
+            intensity={2.6}
             color="#ffdfb2"
           />
           <directionalLight
             position={[-3, 3, -2]}
-            intensity={3}
+            intensity={3.8}
             color="#ba79ff"
           />
           <Mascot pose={pose} still={still} />

@@ -98,10 +98,7 @@ test('the home hero opens the live cat and returns to the illustration', async (
   expect(errors).toEqual([])
 })
 
-test('gallery and community download files are available', async ({
-  page,
-  request,
-}) => {
+test('gallery and community download files are available', async ({ page }) => {
   for (const route of ['/gallery', '/community']) {
     await page.goto(route)
     const urls = await page
@@ -111,9 +108,29 @@ test('gallery and community download files are available', async ({
       )
     expect(urls.length).toBeGreaterThan(0)
     for (const url of urls) {
-      const response = await request.get(url)
-      expect(response.ok()).toBe(true)
-      expect(response.headers()['content-type']).toContain('image/png')
+      const result = await page.evaluate(async (asset) => {
+        const response = await fetch(asset)
+        return { ok: response.ok, type: response.headers.get('content-type') }
+      }, url)
+      expect(result.ok).toBe(true)
+      expect(result.type).toContain('image/png')
     }
   }
+})
+
+test('the room shows repeatable reactions and honors reduced motion', async ({
+  page,
+}) => {
+  await page.goto('/catverse')
+  await expect(page.getByAltText(/lounges by the porthole/)).toBeVisible()
+  await page.getByRole('button', { name: 'Take a nap' }).click()
+  await expect(page.getByAltText(/sleeps on a lilac crescent/)).toBeVisible()
+  await expect(page.locator('.reaction-effects')).toHaveCount(0)
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.getByRole('button', { name: 'Give scritches' }).click()
+  await expect(page.locator('.reaction-effects.pet svg')).toHaveCount(5)
+  await page.getByRole('button', { name: 'Give scritches' }).click()
+  await expect(page.getByRole('status')).toHaveText(
+    'Prrrrrr. Right behind the ears.',
+  )
 })

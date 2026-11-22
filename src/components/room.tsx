@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { Fish, Hand, Moon, Trophy } from 'lucide-react'
+import { Fish, Hand, Moon, Trophy, LockKeyhole, Check } from 'lucide-react'
 import { Portal } from './portal'
 import {
   achievements,
@@ -60,6 +60,7 @@ const controls = [
 
 export function Room() {
   const [ready, setReady] = useState(false)
+  const [interaction, setInteraction] = useState(0)
   const [pose, setPose] = useState<Action | 'idle'>('idle')
   const [reaction, setReaction] = useState('Bonkless is waiting for you.')
   const timeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
@@ -74,6 +75,7 @@ export function Room() {
   function interact(action: Action, result: string) {
     clearTimeout(timeout.current)
     care(action)
+    setInteraction((count) => count + 1)
     setPose(action)
     setReaction(result)
     timeout.current = setTimeout(
@@ -82,14 +84,14 @@ export function Room() {
     )
   }
   return (
-    <div className="feature-grid">
+    <div className="feature-grid lounge-grid">
       <section className="panel room-panel" aria-label="Bonkless’s room">
-        <Portal room pose={pose} />
-        <div className="panel-body">
+        <Portal room pose={pose} interaction={interaction} />
+        <div className="panel-body lounge-controls">
           <motion.p
             className="reaction"
             role="status"
-            key={reaction}
+            key={interaction}
             initial={reduce ? false : { opacity: 0.35, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
           >
@@ -99,7 +101,8 @@ export function Room() {
             {controls.map(({ action, label, result, icon: Icon }) => (
               <button
                 key={action}
-                className="button ghost"
+                className="button lounge-action"
+                data-action={action}
                 disabled={!ready}
                 onClick={() => interact(action, result)}
               >
@@ -110,14 +113,21 @@ export function Room() {
           </div>
         </div>
       </section>
-      <aside className="panel panel-body">
+      <aside className="panel panel-body lounge-achievements">
         <h2 className="subhead">
           <Trophy size={20} /> Achievements
         </h2>
         <ul className="achievement-list">
           {achievements.map(({ title, action, threshold }) => (
             <li key={action}>
-              <strong>{title}</strong>
+              <strong>
+                {progress[action] >= threshold ? (
+                  <Check size={16} />
+                ) : (
+                  <LockKeyhole size={15} />
+                )}
+                {title}
+              </strong>
               <span>
                 {progress[action] >= threshold
                   ? 'Unlocked'
