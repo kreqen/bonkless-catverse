@@ -1,118 +1,138 @@
+import Image from 'next/image'
 import Link from 'next/link'
-import {
-  Cat,
-  Clapperboard,
-  Fish,
-  Images,
-  BookOpen,
-  PawPrint,
-  Sparkles,
-  Orbit,
-  Gamepad2,
-} from 'lucide-react'
+import { Cat, Fish, Gamepad2, Images, PawPrint, Sparkles } from 'lucide-react'
 import { Portal } from '@/components/portal'
 
 const destinations = [
   {
     href: '/catverse',
-    label: 'CATVERSE',
-    text: 'Feed him tuna. Give him scritches. Respect the nap.',
+    label: 'Catverse',
+    text: 'Feed, pet and play with Bonkless in his space lounge.',
+    art: '/art/lunar-lounge.webp',
     icon: Gamepad2,
-    color: 'green',
   },
   {
     href: '/meme-lab',
-    label: 'MEME LAB',
-    text: 'Make questionable art with an excellent cat.',
-    icon: Clapperboard,
-    color: 'pink',
+    label: 'Meme Lab',
+    text: 'Caption the chaos and export your own PNG.',
+    art: '/art/terminal.png',
+    icon: Sparkles,
   },
   {
     href: '/lore',
-    label: 'THE LORE',
-    text: 'One orange cat. Zero idea how he got here.',
-    icon: BookOpen,
-    color: 'orange',
+    label: 'The Lore',
+    text: 'Find out how a tuna signal started it all.',
+    art: '/art/tuna-signal.png',
+    icon: Fish,
   },
   {
     href: '/gallery',
-    label: 'GALLERY',
-    text: 'Take home a little piece of the chaos.',
+    label: 'Gallery',
+    text: 'Collect original memes and share your favorites.',
+    art: '/art/nap-mode.png',
     icon: Images,
-    color: 'blue',
   },
-]
+] as const
 
 export default function Home() {
   return (
-    <>
-      <section className="hero">
-        <div className="hero-art">
-          <Portal />
-        </div>
-        <div className="shell hero-wrap">
-          <div className="hero-copy">
-            <span className="eyebrow hero-badge">
-              <span /> THE SOLANA MEME CAT
-            </span>
-            <h1>
-              NO PLAN.
-              <br />
-              <em>JUST CAT.</em>
-            </h1>
-            <p>
-              Meet Bonkless. One orange cat, zero crypto knowledge, and an
-              unreasonable amount of tuna.
-            </p>
-            <div className="actions">
-              <Link className="button lime" href="/catverse">
-                <PawPrint size={19} /> Enter the Catverse
-              </Link>
-              <Link className="button ghost" href="/meme-lab">
-                <Sparkles size={18} /> Make a Meme
-              </Link>
-            </div>
+    <div className="brand-home">
+      <section className="shell launch-cover">
+        <div className="launch-copy">
+          <span className="eyebrow">
+            <Cat size={19} /> A SOLANA MEME CAT
+          </span>
+          <h1>
+            NO PLAN. <em>JUST CAT.</em>
+          </h1>
+          <p>
+            Bonkless wandered into crypto looking for a can of tuna. Now he has
+            his own corner of the internet.
+          </p>
+          <div className="actions">
+            <Link className="button lime" href="/catverse">
+              <PawPrint size={19} /> Enter the Catverse
+            </Link>
+            <Link className="button ghost" href="#explore">
+              Explore the project
+            </Link>
           </div>
         </div>
+        <div className="launch-scene">
+          <Portal />
+        </div>
       </section>
-      <div className="ticker">
-        <div className="ticker-content" aria-label="Tuna, naps and memes">
-          <span>
-            <Fish /> TUNA FIRST
-          </span>
-          <span>
-            <Sparkles /> NO PLAN. JUST CAT.
-          </span>
-          <span>
-            <Orbit /> THE CATVERSE
-          </span>
-          <span>
-            <Cat /> NAP SEASON
-          </span>
-          <span>
-            <PawPrint /> $BNKLS
-          </span>
+
+      <section className="launch-strip">
+        <div className="shell launch-strip-inner">
+          <Link href="/catverse">
+            <Fish size={24} /> Play with Bonkless
+          </Link>
+          <Link href="/meme-lab">
+            <Sparkles size={24} /> Make a meme
+          </Link>
+          <Link href="/community">
+            <PawPrint size={24} /> Meet the community
+          </Link>
         </div>
-      </div>
-      <section className="shell destinations">
-        <div className="section-heading">
-          <span className="eyebrow">
-            <Sparkles size={15} /> PICK YOUR PORTAL
-          </span>
-          <h2>THE CATVERSE</h2>
+      </section>
+
+      <section className="shell launch-ecosystem" id="explore">
+        <div className="launch-heading">
+          <h2>
+            Explore the
+            <br />
+            Catverse.
+          </h2>
+          <p>Play, make something ridiculous, or see how Bonkless got here.</p>
         </div>
-        <div className="destination-grid">
-          {destinations.map(({ href, label, text, icon: Icon, color }) => (
-            <Link className={'destination ' + color} href={href} key={href}>
-              <span className="destination-icon">
-                <Icon size={25} />
-              </span>
-              <h3>{label}</h3>
-              <p>{text}</p>
+        <div className="launch-grid">
+          {destinations.map(({ href, label, text, art, icon: Icon }) => (
+            <Link className="launch-card" href={href} key={href}>
+              <div className="launch-card-art">
+                <Image
+                  src={art}
+                  alt=""
+                  fill
+                  sizes="(max-width: 740px) 100vw, (max-width: 1000px) 50vw, 25vw"
+                />
+              </div>
+              <div className="launch-card-body">
+                <h3>
+                  <Icon size={22} />
+                  {label}
+                </h3>
+                <p>{text}</p>
+              </div>
             </Link>
           ))}
         </div>
       </section>
-    </>
+
+      <section className="shell launch-community">
+        <Image
+          src="/art/stickers.png"
+          alt="Bonkless, a tuna can and a CRT sticker"
+          width={1200}
+          height={400}
+          sizes="(max-width: 740px) 100vw, 45vw"
+        />
+        <div>
+          <h2>Bring your own tuna.</h2>
+          <p>
+            Grab the sticker pack, find community links, or get the facts about
+            $BNKLS.
+          </p>
+          <div className="actions">
+            <Link className="button lime" href="/community">
+              Community &amp; stickers
+            </Link>
+            <Link className="button ghost" href="/token">
+              Token info
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
   )
 }
